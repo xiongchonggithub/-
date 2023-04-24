@@ -1,220 +1,104 @@
+
+
 #include<stdio.h>
 #include<stdlib.h>
 
-typedef struct Dlist{
-	int data;
-	struct Dlist *next;
-	struct Dlist *prev;
-}List,*LIST;
+typedef struct heap{
+	int *arr;
+	int size;
+	int cnt;
+}Heap,*HEAP;
 
-LIST creat_head();
-LIST creat_node(int data_new);
-void insert_head(LIST head ,LIST node );
-void insert_tail(LIST head ,LIST node );
-LIST find(LIST head,int targer);
-void show_next(LIST head);
-void modify(LIST head,int targer,int data_new);
-void all_free(LIST head);
-void delete(LIST head,int targer);
-
-//创建头节点
-LIST creat_head()
+//创建堆空间
+HEAP creat_heapst(int number)
 {
-	LIST head = malloc(sizeof(List));
+	HEAP head = (HEAP)malloc(sizeof(Heap));
 	if(head==NULL)
 	{
-		printf("malloc failed");
+		printf("heap堆空间申请失败");
+		return NULL;
+	}
+	head->arr=(int *)malloc(sizeof(int )*number);
+	if(head->arr==NULL)
+	{
+		printf("arr堆空间申请失败");
 		return NULL;
 	}
 	
-	head->next=head;
-	head->prev=head;
-	
+	head->size=number;//容纳
+	head->cnt =0;//元素个数
 	return head;
 }
 
-//创建普通节点
-LIST creat_node(int data_new)
+int insert_back(HEAP heap,int data)
 {
-	LIST node = malloc(sizeof(List));
-	if(node==NULL)
+	if(heap->cnt==heap->size)
 	{
-		printf("malloc failed");
-		return NULL;
+		printf("空间已经被塞满了");
+		return -1;
 	}
-	node->data=data_new;
-	node->next=node;
-	node->prev=node;
-	
-	return node;
+	*(heap->arr+heap->cnt)=data;
+	(heap->cnt)++;
+	return 0;
 }
 
-//头插
-void insert_head(LIST head ,LIST node )
+int remove_heap(HEAP heap)
 {
-	node->next=head->next;
-	
-	node->prev=head;
-	
-	head->next->prev=node;
-	
-	head->next=node;
-	
-}
-//插入中间
-void insert_middle(LIST head,LIST tail,LIST targer)
-{
-	head->next=targer;
-	
-	targer->next=tail;
-	targer->prev=head;
-	
-	tail->prev=targer;
-}
-
-//尾插
-void insert_tail(LIST head ,LIST node )
-{
-	node->next=head;
-	
-	node->prev=head->prev;
-	
-	head->prev->next=node;
-	
-	head->prev=node;
-	
-	
-}
-
-//查找targer所在节点
-LIST find(LIST head,int targer)
-{
-	LIST p=head->next;
-	while(p!=head)
+	if(heap->cnt==0)
 	{
-		if(p->data==targer)
-		{
-			break;
-		}
-		p=p->next;
+		printf("别偷了里面东西都被你偷光了");
+		return -1;
 	}
-	if(p==head)
+	*(heap->arr+heap->cnt)=0;
+	(heap->cnt)--;
+	return 0;
+}
+
+void show(HEAP heap)
+{
+	int i=0;
+	for(i;i<(heap->cnt);i++)
 	{
-		p=NULL;
-	}
-	return p;
-}
-//删除目标节点
-void list_del(LIST targer)
-{
-	targer->next->prev=targer->prev;
-	targer->prev->next=targer->next;
-}
-
-//删除两节点之间的节点
-void list_del_middle(LIST head,LIST tail)
-{
-	head->next=tail;
-	tail->prev=head;
-
-}
-
-//从头往尾显示链表数据
-void show_next(LIST head)
-{
-	LIST p=head->next;
-	while(p!=head)
-	{
-		printf("%d-",p->data);
-		p=p->next;
+		printf(" %d ",*(heap->arr+i));
 	}
 	printf("\n");
-}
-//从尾往头显示链表数据
-void show_prev(LIST head)
-{
-	LIST p=head->prev;
-	while(p!=head)
-	{
-		printf("%d-",p->data);
-		p=p->prev;
-	}
-	printf("\n");
-
-}
-
-//修改targer对应的值
-void modify(LIST head,int targer,int data_new)
-{
-	LIST p=find(head,targer);
-	if(p==NULL)
-	{
-		printf("链表中无目标值");
-		return ;
-	}
-	p->data=data_new;
-}
-
-//去除targer对应的节点
-LIST del(LIST head,int targer)
-{
-	LIST p=find(head,targer);
-	if(p==NULL)
-	{
-		printf("链表中无目标值");
-		return NULL;
-	}
-	
-	p->prev->next=p->next;
-	
-	p->next->prev=p->prev;
-	
-	p->next=p;
-	p->prev=p;
-	return p;
-}
-
-//释放链表的堆空间
-void all_free(LIST head)
-{
-	LIST p=head->next;
-	LIST q=head->next;
-	while(p!=head)
-	{
-		p=p->next;
-		free(q);
-		q=p;
-	}
-	free(head);
 }
 
 int main()
 {
-	
-	LIST head=creat_head();
-	int i=1;
-	for(i;i<10;i++)
+	char *b=(char *)malloc(10);
+	int data_main=0;
+	HEAP addr =  creat_heapst(100);
+	int a[10]={1,2,3,4,5,6,7,8,9,10};
+	for(int i=0;i<10;i++)
 	{
-		insert_tail(head,creat_node(i));
+		
+		*((addr->arr)+i)=a[i];
+		(addr->cnt)++;
 	}
-	
-	show_next(head);
-	show_prev(head);
-	all_free(head);
-	
-	
+	while(1)
+	{
+		show(addr);
+		printf("请输入一个数");
+		scanf("%s",b);
+		while(getchar()!='\n');
+		data_main=atoi(b);
+		if(data_main>0)
+		{
+			insert_back(addr,data_main);
+		}
+		if(data_main<0)
+		{
+			remove_heap(addr);
+		}
+		if(b[0]=='q')
+		{
+			break;
+		}
+	}
+	free(b);
+	free(addr);
+	free(addr->);
 	return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
-
 
